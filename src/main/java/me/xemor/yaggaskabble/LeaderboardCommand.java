@@ -31,20 +31,25 @@ public class LeaderboardCommand extends ListenerAdapter {
             event.reply("You have entered an invalid winning alignment!").queue();
             return;
         }
-
+        String leaderboardString;
         List<Player> players = yaggaskabble.getPlayers();
+        
         if (alignment == Alignment.BOTH) {
             players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(Alignment.GOOD).conservativeRating() + player.getSkillRatingForAlignment(Alignment.EVIL).conservativeRating()));
             Collections.reverse(players);
+            leaderboardString = players.stream()
+                .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), alignment))
+                .collect(Collectors.joining("\n"));
         }
         else {
             players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(alignment).conservativeRating()));
             Collections.reverse(players);
-        }
-        
-        String leaderboardString = players.stream()
+            leaderboardString = players.stream()
                 .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), alignment))
                 .collect(Collectors.joining("\n"));
+        }
+        
+        
 
         // Build and send the embed
         EmbedBuilder embed = new EmbedBuilder()
