@@ -1,7 +1,11 @@
-package me.xemor;
+package me.xemor.yaggaskabble;
 
 public enum Alignment {
 
-    GOOD,EVIL
+    GOOD,EVIL;
+
+    public String getEmojiString() {
+        return this == Alignment.GOOD ? "😇 Good" : "😈 Evil";
+    }
 
 }

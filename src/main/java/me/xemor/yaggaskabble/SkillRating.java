@@ -1,12 +1,9 @@
-package me.xemor;
+package me.xemor.yaggaskabble;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public record SkillRating(double mu, double std) {
 
-public class SkillRating {
-
-    @JsonProperty
-    private double skill;
-    @JsonProperty
-    private double std;
+    public double conservativeRating() {
+        return Math.max(60 * (mu - 3 * std), 0); // multiply by 60, so it is of the same scale as chess elo
+    }
 
 }
