@@ -33,9 +33,15 @@ public class LeaderboardCommand extends ListenerAdapter {
         }
 
         List<Player> players = yaggaskabble.getPlayers();
-        players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(alignment).conservativeRating()));
-        Collections.reverse(players);
-
+        if (alignment == Alignment.BOTH) {
+            players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(Alignment.GOOD).conservativeRating() + player.getSkillRatingForAlignment(Alignment.EVIL).conservativeRating()));
+            Collections.reverse(players);
+        }
+        else {
+            players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(alignment).conservativeRating()));
+            Collections.reverse(players);
+        }
+        
         String leaderboardString = players.stream()
                 .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), alignment))
                 .collect(Collectors.joining("\n"));
