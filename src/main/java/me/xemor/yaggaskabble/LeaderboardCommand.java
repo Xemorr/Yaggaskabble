@@ -1,7 +1,6 @@
 package me.xemor.yaggaskabble;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -23,53 +22,54 @@ public class LeaderboardCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("leaderboard")) return;
 
-        Alignment alignment;
-        try {
-            String alignmentString = event.getOption("alignment").getAsString();
-            if (alignmentString.toUpperCase().equals("COMBINED")) {
-                this.generateCombined(event);
+        String alignmentString = event.getOption("alignment").getAsString();
+        String leaderboardString;
+        String title;
+        if (alignmentString.toUpperCase().equals("COMBINED")) {
+            leaderboardString = generateCombinedLeaderboard();
+            title = "Combined Leaderboard";
+        }
+        else {
+            Alignment alignment;
+            try {
+                alignment = Alignment.valueOf(alignmentString.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                event.reply("You have entered an invalid winning alignment!").queue();
                 return;
             }
-            alignment = Alignment.valueOf(alignmentString.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            event.reply("You have entered an invalid winning alignment!").queue();
-            return;
+            leaderboardString = generateAlignmentLeaderboard(alignment);
+            title = alignment.getEmojiString() + " Leaderboard";
         }
-        String leaderboardString;
-        List<Player> players = yaggaskabble.getPlayers();
 
-        players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(alignment).conservativeRating()));
-        Collections.reverse(players);
-        leaderboardString = players.stream()
-                .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), alignment))
-                .collect(Collectors.joining("\n"));
-        
         // Build and send the embed
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle(alignment.getEmojiString() + " Leaderboard")
+                .setTitle(title)
                 .setColor(Color.MAGENTA)
-                .addField("", leaderboardString, true);
+                .addField(title, leaderboardString, true);
 
         event.replyEmbeds(embed.build()).queue();
     }
 
-    public void generateCombined(SlashCommandInteractionEvent event) {
-        String leaderboardString;
+    public String generateCombinedLeaderboard() {
         List<Player> players = yaggaskabble.getPlayers();
 
         players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(Alignment.GOOD).conservativeRating() +
                                                           player.getSkillRatingForAlignment(Alignment.EVIL).conservativeRating()));
         Collections.reverse(players);
-        leaderboardString = players.stream()
+        return players.stream()
                 .map((p) -> p.shorthandSkillForCombined(yaggaskabble.getBot()))
                 .collect(Collectors.joining("\n"));
         
-        // Build and send the embed
-        EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Combined Leaderboard")
-                .setColor(Color.MAGENTA)
-                .addField("", leaderboardString, true);
 
-        event.replyEmbeds(embed.build()).queue();
+    }
+
+    public String generateAlignmentLeaderboard(Alignment alignment) {
+        List<Player> players = yaggaskabble.getPlayers();
+
+        players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(alignment).conservativeRating()));
+        Collections.reverse(players);
+        return players.stream()
+                .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), alignment))
+                .collect(Collectors.joining("\n"));
     }
 }
