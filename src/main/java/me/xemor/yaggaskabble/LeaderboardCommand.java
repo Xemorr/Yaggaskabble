@@ -26,20 +26,24 @@ public class LeaderboardCommand extends ListenerAdapter {
         Alignment alignment;
         try {
             String alignmentString = event.getOption("alignment").getAsString();
+            if (alignmentString.toUpperCase().equals("COMBINED")) {
+                this.generateCombined(event);
+                return;
+            }
             alignment = Alignment.valueOf(alignmentString.toUpperCase());
         } catch (IllegalArgumentException e) {
             event.reply("You have entered an invalid winning alignment!").queue();
             return;
         }
-
+        String leaderboardString;
         List<Player> players = yaggaskabble.getPlayers();
+
         players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(alignment).conservativeRating()));
         Collections.reverse(players);
-
-        String leaderboardString = players.stream()
+        leaderboardString = players.stream()
                 .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), alignment))
                 .collect(Collectors.joining("\n"));
-
+        
         // Build and send the embed
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(alignment.getEmojiString() + " Leaderboard")
@@ -49,4 +53,23 @@ public class LeaderboardCommand extends ListenerAdapter {
         event.replyEmbeds(embed.build()).queue();
     }
 
+    public void generateCombined(SlashCommandInteractionEvent event) {
+        String leaderboardString;
+        List<Player> players = yaggaskabble.getPlayers();
+
+        players.sort(Comparator.comparingDouble(player -> player.getSkillRatingForAlignment(Alignment.GOOD).conservativeRating() +
+                                                          player.getSkillRatingForAlignment(Alignment.EVIL).conservativeRating()));
+        Collections.reverse(players);
+        leaderboardString = players.stream()
+                .map((p) -> p.shorthandSkillForCombined(yaggaskabble.getBot()))
+                .collect(Collectors.joining("\n"));
+        
+        // Build and send the embed
+        EmbedBuilder embed = new EmbedBuilder()
+                .setTitle("Combined Leaderboard")
+                .setColor(Color.MAGENTA)
+                .addField("", leaderboardString, true);
+
+        event.replyEmbeds(embed.build()).queue();
+    }
 }

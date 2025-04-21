@@ -34,7 +34,12 @@ public class Player {
     
     public String shorthandSkillForAlignment(JDA bot, Alignment alignment) {
         SkillRating skill = alignment == Alignment.GOOD ? goodSkill : evilSkill;
+
         return "%s: %.0f - %.0f±%.0f".formatted(bot.getUserById(id).getAsMention(), skill.conservativeRating(), skill.mu() * 60, skill.std() * 60);
+    }
+
+    public String shorthandSkillForCombined(JDA bot) {
+        return "%s: %.0f".formatted(bot.getUserById(id).getAsMention(), goodSkill.conservativeRating() + evilSkill.conservativeRating());
     }
 
     public SimplePlayerResult<Long> getSimplePlayerResultForAlignment(Alignment alignment) {
