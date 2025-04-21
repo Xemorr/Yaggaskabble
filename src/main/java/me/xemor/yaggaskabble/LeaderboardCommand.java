@@ -27,7 +27,7 @@ public class LeaderboardCommand extends ListenerAdapter {
         try {
             String alignmentString = event.getOption("alignment").getAsString();
             if (alignmentString.toUpperCase().equals("COMBINED")) {
-                this.generateBoth(event);
+                this.generateCombined(event);
                 return;
             }
             alignment = Alignment.valueOf(alignmentString.toUpperCase());
@@ -53,7 +53,7 @@ public class LeaderboardCommand extends ListenerAdapter {
         event.replyEmbeds(embed.build()).queue();
     }
 
-    public void generateBoth(SlashCommandInteractionEvent event) {
+    public void generateCombined(SlashCommandInteractionEvent event) {
         String leaderboardString;
         List<Player> players = yaggaskabble.getPlayers();
 
