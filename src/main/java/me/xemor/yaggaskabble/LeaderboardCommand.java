@@ -26,7 +26,7 @@ public class LeaderboardCommand extends ListenerAdapter {
         Alignment alignment;
         try {
             String alignmentString = event.getOption("alignment").getAsString();
-            if (alignmentString.toUpperCase() == "BOTH") {
+            if (alignmentString.toUpperCase().equals("COMBINED")) {
                 this.generateBoth(event);
                 return;
             }
@@ -61,7 +61,7 @@ public class LeaderboardCommand extends ListenerAdapter {
                                                           player.getSkillRatingForAlignment(Alignment.EVIL).conservativeRating()));
         Collections.reverse(players);
         leaderboardString = players.stream()
-                .map((p) -> p.shorthandSkillForAlignment(yaggaskabble.getBot(), Alignment.GOOD) + p.shorthandSkillForAlignment(yaggaskabble.getBot(), Alignment.EVIL))
+                .map((p) -> p.shorthandSkillForCombined(yaggaskabble.getBot()))
                 .collect(Collectors.joining("\n"));
         
         // Build and send the embed
